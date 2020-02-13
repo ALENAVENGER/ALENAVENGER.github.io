@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Yunyue Chen">
+
+
+
+
+
+<title>Reading Note: About Linear Region[中文] | Allen&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Yunyue Chen&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About Me</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Yunyue Chen&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About Me</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Reading Note: About Linear Region[中文]</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Yunyue Chen</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 13, 2020&nbsp;&nbsp;13:16:31</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/%E4%B8%AD%E6%96%87/">中文</a>
+                            
+                                <a href="/categories/%E4%B8%AD%E6%96%87/Reading-Notes/">Reading Notes</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p><img src="https://github.com/ALENAVENGER/git_picBed/raw/master/IMG_2062.JPG" /></p>
+<p><strong>“一个子领域的开山之作，可能也仅仅只是将另一个领域业已成熟的结论应用在了当下的问题当中。”</strong></p>
+<p>2013年，Razvan Pascanu（蒙特利尔大学）、Guido Montufar（德国马普所）和Yoshua Bengio（蒙特利尔大学）发表了一篇题为<a href="https://arxiv.org/abs/1312.6098" target="_blank" rel="noopener"><em>On the number of linear regions of deep feedforward networks with piecewise linear activations</em></a>的论文，这篇论文后来改名为<em>On the number of response regions of deep feedforward networks with piecewise linear activations</em>，改名的原因可能是因为文章中核心的定义“线性区”既被称为linear region，也叫做response regions。这篇文章和后来2014年的<a href="https://www.researchgate.net/publication/260126867_On_the_Number_of_Linear_Regions_of_Deep_Neural_Networks" target="_blank" rel="noopener"><em>On the Number of Linear Regions of Deep Neural Networks</em></a>一同构成了论述“神经网络可供拟合的复杂函数的线性区域”的研究成果，后者引用了前者，这两篇文章为后面的关于“神经网络表达性”的研究奠定了基础。</p>
+<h2 id="概述">0 概述</h2>
+<p>本文主要讨论的是隐藏层全为ReLU神经元、输出层为线性神经元（没有激活函数）的全连接神经网络（多层感知机MLP）。借助这个只有两段线性结构的激活函数，可以较为清晰地跟踪到由输入层输入的数据点的被分类情况。</p>
+<p>由神经元的定义，每一个神经元实质上都确定了一个超平面，这个超平面将整个输入空间中的数据点分为两个部分，借由ReLU激活函数（rectifier function），所有满足<span class="math inline">\(w^\top x+b\geq0\)</span>的点都被原样输出，而超平面另一边的点就会被此神经元输出为0。</p>
+<p>考虑拥有单个隐藏层的浅神经网络，<span class="math inline">\(n_0\)</span>个输入神经元，<span class="math inline">\(n\)</span>个隐藏层的ReLU神经元。每个ReLU神经元都使用一个超平面去分割输入空间<span class="math inline">\(\mathbb{R}^{n_0}\)</span>，那么这整个隐藏层所做的工作，就是使用<span class="math inline">\(n\)</span>个超平面去分割输入空间。那么，在最一般的情况下，单层ReLU神经元可以将输入空间分为多少个区域呢？这种问题在组合数学上被称为hyperplane arrangements，组合数学家Zaslavsky在1975年提出的一个定理中解决了这个问题，其答案是：<span class="math inline">\(r(\mathcal{A})=\sum^{n_o}_{s=0}\binom{m}{s}\)</span>。</p>
+<p>我们都知道，单个神经元连XOR问题都解决不了，但是多个神经元合在一起，其实是通过多段线性函数拼接成一个很复杂的分段函数，使用这个函数可以去拟合一些很复杂的分类边界曲线，而每一个分段是怎么出来的呢，就是通过众多超平面分割的输入空间的区域的边界所拼接而成的。被分割出来的每一个区域，就被定义为“线性区域”（linear region）。既然神经网络使用分段线性函数拟合分界曲线，那么，分段数越多，拟合就越精确，<strong>所以，一个神经网络对给定的输入空间<span class="math inline">\(\mathbb{R}^{n_0}\)</span>，所能分割的线性区域的多少，表征了这个神经网络所能拟合的函数的复杂程度，即该神经网络的表达能力</strong>。</p>
+<p>本文首先利用Zaslavsky的结论证明了单隐层ReLU神经网络线性区域的数量为</p>
+<p><span class="math display">\[
+r(\mathcal{A})=\sum^{n_o}_{s=0}\binom{m}{s}
+\]</span></p>
+<p>然后又证明了，对于拥有<span class="math inline">\(k\)</span>个ReLU隐藏层的神经网络，每层ReLU神经元的数量是<span class="math inline">\(n_k\)</span>，输入层有<span class="math inline">\(n_0\)</span>个输入神经元，则该神经网络可以分割出来的线性区域的数量<strong>至少是</strong></p>
+<p><span class="math display">\[
+\left({\prod^{k-1}_{i=1}}\left\lfloor \frac{n_i}{n_0} \right\rfloor \right)
+{\sum^{n_0}_{i=0}}\binom{n_k}{i}
+\]</span></p>
+<p>自此，作者发现，神经网络能够分割的线性区域的数量，随着网络层数的增加，即深度的增加，指数级增加，也就是说，对比两个隐藏层神经元数量完全一样的神经网络，一个又宽又浅，另一个又窄又深，那么，后者可以拟合的函数一定比前者更复杂，且复杂得多。</p>
+<hr />
+<p><em>未完待续……</em></p>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/linear-region/"># linear region</a>
+                    
+                        <a href="/tags/DNN/"># DNN</a>
+                    
+                        <a href="/tags/ReLU/"># ReLU</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2020/02/12/%E5%BD%93%E6%95%B0%E5%AD%97%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%B6%85%E8%B6%8A%E6%A8%A1%E6%8B%9F%E8%AE%A1%E7%AE%97%E6%9C%BA/">当数字计算机超越模拟计算机 [中文]</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <!-- <span>© Yunyue Chen | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span> -->
+    </div>
+</footer>
+
+    </div>
+</body>
+</html>
