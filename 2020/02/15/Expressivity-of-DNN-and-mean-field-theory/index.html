@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Yunyue Chen">
+
+
+
+
+
+<title>Reading Note: Expressivity of DNN and mean field theory [中文] | Allen&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Yunyue Chen&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About Me</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Yunyue Chen&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About Me</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Reading Note: Expressivity of DNN and mean field theory [中文]</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Yunyue Chen</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 15, 2020&nbsp;&nbsp;20:19:25</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/%E4%B8%AD%E6%96%87/">中文</a>
+                            
+                                <a href="/categories/%E4%B8%AD%E6%96%87/Reading-Notes/">Reading Notes</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p><img src="https://github.com/ALENAVENGER/git_picBed/raw/master/IMG_2093.JPG" /></p>
+<p><strong>“通过变换描述一个事物的定义方法，可以将更多的有关这个事物的讨论纳入其中”</strong></p>
+<p>在<a href="https://alenavenger.github.io/2020/02/14/On-the-number-of-response-regions-of-deep-feedforward-networks-with-piecewise-linear-activations/" target="_blank" rel="noopener">上一篇博客文章</a>中阐述的关于神经网络可以计算的复杂函数的线性区域（linear region）的数量研究之后，深度学习的浪潮在2016年之后才真正被掀起，Maithra Raghu（康奈尔大学、谷歌大脑）、Ben Poole（斯坦福大学）、Jon Kleinberg（康奈尔大学）、Surya Ganguli（斯坦福大学）和Jascha Sohl Dickstein（谷歌大脑）发表了一篇论文：<a href="https://arxiv.org/abs/1606.05336" target="_blank" rel="noopener"><em>On the Expressive Power of Deep Neural Networks</em></a>。这篇文章在线性区域的概念上更进一步，通过考察在输入空间<span class="math inline">\(\mathbb{R}^{n_0}\)</span>中的一个一维轨迹（trajectory）<span class="math inline">\(x(t)\)</span>在神经网络中被传递和被变形的结果，考察了一种神经网络可表达性的度量以及神经网络的鲁棒性，最终得到了相似的结论，即神经网络可表达性随着网络深度指数级增加，并且在输入空间中的一个小的扰动（perturbation）<span class="math inline">\(x+\delta\)</span>，也会在后续的隐藏层中指数级别地放大，这就使得网络前几层的参数训练尤为重要，于是乎，借助一维轨迹的概念，进一步解释了为何batch normalization如此好用的原因，同时提出了所谓的trajectory normalization。然后应该是在同一时间，几乎相同的作者又发表了名为<a href="https://arxiv.org/abs/1606.05340" target="_blank" rel="noopener"><em>Exponential expressivity in deep neural networks through transient chaos</em></a>的文章，比较厉害的是，这两篇文章在参考文献中互相引用。后者引入了黎曼几何、平均场理论和混沌来考察神经网络的训练过程，并且找到了神经网络训练中的一个相图，在这个相图上某些区域里面，神经网络的训练是有序且快速的，而某些区域则导向混沌。</p>
+<h2 id="on-the-expressive-power-of-deep-neural-networks">1 On the Expressive Power of Deep Neural Networks</h2>
+<p>对于任何一个给定结构<span class="math inline">\(A\)</span>的神经网络，都是一个函数<span class="math inline">\(F_A(x;W)\)</span>，其中<span class="math inline">\(x\)</span>是输入，<span class="math inline">\(W\)</span>是所有的参数。本文主要考察了ReLU神经元和hard tanh神经元的全连接神经网络，当然实验上作者还做了CNN。<a href="https://alenavenger.github.io/2020/02/14/On-the-number-of-response-regions-of-deep-feedforward-networks-with-piecewise-linear-activations/" target="_blank" rel="noopener">上一篇博客文章</a>已经提到，ReLU神经元本身就是先拟合一个超平面，然后将分类结果通过ReLU激活函数输出，所以在本文中，首先定义了transition：</p>
+<p><strong>定义：</strong>一个拥有分段线性激活函数的神经元，如果当输入<span class="math inline">\(x\)</span>变为了<span class="math inline">\(x+\delta\)</span>，造成了激活函数的输出移动到了其他的线性区域上时，就称该神经元在两个线性区域内transition了。</p>
+<p>transition相当于是表征了因为输入数据的变化而导致的激活函数输出的变化，但是这种变化其实也是该输入数据从原有的超平面的一侧转移到另一侧的变化，所以，这相当于是数据点所在的线性区域发生了变化。神经网络每次肯定是只接受一个输入数据的，一个数据数据就相当于输入空间<span class="math inline">\(\mathbb{R}^{n_0}\)</span>中的一个点，这个点会被每一层中的每一个神经元不断分类，那么，如果这个输入数据<span class="math inline">\(x\)</span>沿着一个一维的轨迹<span class="math inline">\(x(t)\)</span>在变化的时候，它所经历的所有线性区域的数量，就正好等于整个网络中，每个神经元的transition的次数的总和。严格来说，本文定义了activation pattern：</p>
+<p><strong>定义：</strong>对于ReLU神经元的全连接神经网络，0表示激活函数的一个线性区域，1表示另一个线性区域，可以通过一个字符串来编码整个神经网络中神经元输出所在的线性区域，这个字符串就表征了该神经网络的激活模式（activation pattern），表示为<span class="math inline">\(\mathcal{AP}(F_A(x;W))\)</span>。对于hard tanh神经元，则是{-1,0,1}。</p>
+<p>有了activation pattern来表征对于输入数据<span class="math inline">\(x\)</span>，神经网络的状态之后，一旦神经网络中有任何神经元因为<span class="math inline">\(x\)</span>的变动而发生transition，那么整个神经网络的activation pattern都会发生变化。所以，联系上面的想法，做出如下定义：</p>
+<p><strong>定义：</strong>令<span class="math inline">\(\mathcal{A}(F_A(x(t);W))\)</span>为当<span class="math inline">\(x\)</span>在一维轨迹<span class="math inline">\(x(t)\)</span>上运动的时候（只扫一遍，从某个起点一直运动到终点），整个神经网络所经历的所有不同的activation pattern的数量。</p>
+<p>回忆<a href="https://alenavenger.github.io/2020/02/14/On-the-number-of-response-regions-of-deep-feedforward-networks-with-piecewise-linear-activations/" target="_blank" rel="noopener">上一篇博客文章</a>中的观点，神经网络实质上就是一个很复杂的分段线性函数，而这个函数的每个不同的线性区域，是由超平面分割的，超平面本身就是参与分类输入数据的，所以，<span class="math inline">\(\mathcal{A}(F_A(x(t);W))\)</span>就是输入数据<span class="math inline">\(x\)</span>在变化的时候，神经网络在用不同的线性段参与对<span class="math inline">\(x\)</span>的分类。与之前论文中直接计算一个神经网络可以分割的线性区域的数量不同，本文是将一个<span class="math inline">\(x(t)\)</span>的输入数据变化轨迹作为一个标准，进而定义在这个标准下的神经网络的表达性的。</p>
+<p>当然，本文很快就继续给出了，在任意给定一维轨迹的条件下，一个<span class="math inline">\(n\)</span>层隐藏层、每层宽度为<span class="math inline">\(k\)</span>，输入空间为<span class="math inline">\(\mathbb{R}^m\)</span>的全连接神经网络，如果是ReLU神经元，其<span class="math inline">\(\mathcal{A}(F_A(x(t);W))\)</span>的上界为：</p>
+<p><span class="math display">\[
+O(k^{mn})
+\]</span></p>
+<p>而对于hard tanh神经元，其上界为：<span class="math inline">\(O((2k)^{mn})\)</span>。这个关于上界的研究，弥补了之前只有线性区域数量下界的研究空白。</p>
+<p>本文对神经网络表达性的定义基于的是trajectory，因为trajectory不仅可以通过在其上运动得到的activation pattern的数量来衡量线性区域的数量，还可以衡量神经网络对于输入的稳定性，即当输入发生变化的时候，在神经网络另一端，输出发生的变化。</p>
+<p>trajectory可以被看作是一个嵌在高维输入空间中的一维流形，当然这个认知主要是用在后面一篇文章，本文首先给出了计算trajectory长度的方法，也很简单：</p>
+<p><span class="math display">\[
+l(x(t))=\int_t\left\|\frac{dx(t)}{dt}\right\|dt
+\]</span></p>
+<p>在trajectory上的每个点都是可以被映射到输出空间的，而trajectory上面都是连续的点，所以一整个trajectory在每一层，都有一个像，分析这些像的长度，可以发现在输入空间内的扰动在后面几层中的缩放情况。本文发现，如果一开始将权重按<span class="math inline">\(N(0,\frac{\sigma^2_\omega}{k})\)</span>、偏置按<span class="math inline">\(N(0,\sigma^2_b)\)</span>初始化之后，如果设<span class="math inline">\(z^{(d)}(x(t))=z^{(d)}(t)\)</span>为在<span class="math inline">\(d\)</span>层的trajectory的像的话，那么对于ReLU神经元，有：</p>
+<p><span class="math display">\[
+\mathbb{E}\left[l(z^{(d)}(t))\right]\geq O\left(\frac{\sigma_\omega\sqrt{k}}{\sqrt{k+1}}\right)^dl(x(t))
+\]</span></p>
+<p>而对于hard tanh神经元：</p>
+<p><span class="math display">\[
+\mathbb{E}\left[l(z^{(d)}(t))\right]\geq O\left(\frac{\sigma_\omega\sqrt{k}}{\sigma^2_\omega+\sigma^2_b+k\sqrt{\sigma^2_\omega+\sigma^2_b}}\right)^dl(x(t))
+\]</span></p>
+<p>也就是说，随着层数的增加，输入层的一个trajectory的长度，可能在后面的隐藏层里面以指数级增加，这就导致靠近输入层的最近几层如果不稳定有小的扰动，这个偏差对指数级放大到最后的层中，所以深度神经网络训练中最难的就是优化好浅层的参数，一旦不够优化，会导致整个网络对输入非常敏感。</p>
+<p>文章最后进行了关于batch normalization和trajectory normalization的讨论，说明了其有效性，并有实验结果。</p>
+<p>有意思的一点是，文章在考察trajectory的长度随层数增长的时候，使用了CNN，虽然没有对卷积神经网络的具体结构进行分析，但是实验结果依然是指数级增加，但同时也发现了似乎池化层可以一定程度上缩减trajectory的长度，这可能使得CNN增加了稳定性，当然文章对此只是做了一个简要的讨论。</p>
+<hr />
+<p>未完待续……</p>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/expressivity/"># expressivity</a>
+                    
+                        <a href="/tags/trajectory/"># trajectory</a>
+                    
+                        <a href="/tags/activation-pattern/"># activation pattern</a>
+                    
+                        <a href="/tags/linear-region/"># linear region</a>
+                    
+                        <a href="/tags/hard-tanh/"># hard tanh</a>
+                    
+                        <a href="/tags/ReLU/"># ReLU</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2020/02/14/On-the-number-of-response-regions-of-deep-feedforward-networks-with-piecewise-linear-activations/">Reading Note: About Linear Region[中文]</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <!-- <span>© Yunyue Chen | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span> -->
+    </div>
+</footer>
+
+    </div>
+</body>
+</html>
