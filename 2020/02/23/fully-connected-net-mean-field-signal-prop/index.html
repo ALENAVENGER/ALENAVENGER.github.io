@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Yunyue Chen">
+
+
+
+
+
+<title>Reading Note: The expressivity, signal forward propagation and gradient back propagation of fully connected ANN using mean-field theory [中文] | Allen&#39;s Blog</title>
+
+
+
+    <link rel="icon" href="/TriIcon.png">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+            <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+        
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Yunyue Chen&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About Me</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Yunyue Chen&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About Me</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Reading Note: The expressivity, signal forward propagation and gradient back propagation of fully connected ANN using mean-field theory [中文]</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Yunyue Chen</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 23, 2020&nbsp;&nbsp;11:58:33</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p><strong>引言：</strong>在马普所和蒙特利尔大学的研究者通过hyperplane arrangement来计算使用ReLU神经元的全连接神经网络的线性区域的数量来估算神经网络的表达性之后，以具有物理学背景的斯坦福的研究者Surya Ganguli和谷歌大脑的一些成员为首，开启了使用平均场近似来研究神经网络的领域。他们首先通过引入微分几何来进一步量化可表达性的度量方法，从而又成功估算了神经网络对输入的稳定性，在此基础之上，通过研究每一层的迭代关系，结合动力学分析，考察了全连接神经网络向前传播过程中的混沌——有序相变现象，并且找到了其分界线。随后在其基础之上，发现了梯度的反向传播过程和前馈过程的对偶性，于是成功找到了梯度反向传播过程中的混沌——有序相变，通过结合动力学的研究成果，发现了反向传播过程的混沌现象恰好对应着神经网络训练中的梯度爆炸现象，而有序状态则对应着梯度消失，只有当神经网络处于混沌——有序的边界时，梯度信息才不会随着传播的深度而衰减或者增加，才可以完成从整个网络末端到首端的传播，最终完成一次有效的训练。自此，以平均场近似的假设为基石，对于深度学习的理论研究，为实际的深度学习训练，提供了理论支持和初始化建议。</p>
+<h2 id="更具普适性的神经网络表达性理论">1 更具普适性的神经网络表达性理论</h2>
+<p>神经网络的本质就是多个函数（多个神经元）的复合，但是神经元所采用的激活函数<span class="math inline">\(\phi(\cdot)\)</span>本身有很多种选择，有些激活函数都不是线性的，有些则是分段线性的。</p>
+<p>对于分段线性的激活函数，整个神经网络所</p>
+<p>对于ReLU神经元构成的全连接神经网络，其输出只有两种情况，当神经元接受的pre-activation——即通过前一层的神经网络的激活（activation）加权求和再加上偏置而得的信号——小于0时，神经元输出激活0，否则原样输出。ReLU函数本身只有两个线性区域，而且正好对应每个神经元的超平面<span class="math inline">\(\omega^Tx+b\)</span>所分割的两个区域，这使得引入hyperplane arrangement作为计算神经网络线性区域的技术成为可能，这就是<a href="https://alenavenger.github.io/2020/02/14/On-the-number-of-response-regions-of-deep-feedforward-networks-with-piecewise-linear-activations/" target="_blank" rel="noopener">之前2014年的两篇论文的成果</a>。</p>
+<p>但是对于拥有多个线性区域的激活函数呢？如hard tanh： <span class="math display">\[
+f(x)=\left\{
+\begin{array}{2}
+-1&amp;\text{for}\ x&lt;-1\\
+x&amp;\text{for}\ -1\leq x\leq1\\
+1&amp;\text{for}\ x&gt;1
+\end{array}
+\right.
+\]</span> 又或者诸如连续光滑的激活函数如sigmoid函数，这些激活函数的输出结构根本无法和超平面直接对应。</p>
+<p>回顾上面的疑问，我们可以发现两个问题：</p>
+<ol type="1">
+<li>对于多段的分段线性激活函数（如hard tanh），依然可以通过计算线性区域的数量来衡量神经网络的复杂程度。</li>
+<li>对于连续光滑的激活函数，其多个神经元复合之后的结果根本不可能是一个复杂的分段线性函数，既然没有线性区域这个概念了，那该如何衡量神经网络的复杂度？</li>
+</ol>
+<p>第一个问题在<a href="https://arxiv.org/abs/1606.05336" target="_blank" rel="noopener"><em>On the Expressive Power of Deep Neural Networks</em></a>中得到了解决，在由分段线性激活函数的神经元组成的全连接神经网络中，每个神经元依然是对上一层输入的空间进行了一个分割，只是分割的份数可能比2份要多。具体来说，hard tanh相当于有两个超平面，即<span class="math inline">\(\omega^Tx+b=1\)</span>和<span class="math inline">\(\omega^Tx+b=1\)</span>，这两个超平面将空间分为了3个线性区域。那么，我们依然可以利用hyperplane arrangement的技术，对于一个向量空间<span class="math inline">\(\mathbb{R}^m\)</span>，若有<span class="math inline">\(k\)</span>个超平面进行分割，最多可以得到的区域数量是： <span class="math display">\[
+r(k,m)\leq\sum^m_{i=0}\binom{k}{i}
+\]</span></p>
+<h2 id="全连接神经网络的向前传播过程">2 全连接神经网络的向前传播过程</h2>
+<p>需要注意的是，通过计算线性区域来考察全连接神经网络的可表达性的做法，是没有引入平均场理论的。</p>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2020/02/15/Expressivity-of-DNN-and-mean-field-theory/">Reading Note: Expressivity of DNN and mean field theory [中文]</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <!-- <span>© Yunyue Chen | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span> -->
+    </div>
+</footer>
+
+    </div>
+</body>
+</html>
